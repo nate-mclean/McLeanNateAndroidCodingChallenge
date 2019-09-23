@@ -21,8 +21,9 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity {
 
 
+    //arraylists to hold parsed JSON data
     ArrayList<String> titles = new ArrayList<>();
-    ArrayList<Integer> images = new ArrayList<>();
+    ArrayList<String> images = new ArrayList<>();
     ArrayList<String> authors = new ArrayList<>();
 
 
@@ -34,23 +35,42 @@ public class MainActivity extends AppCompatActivity {
 
         //get JSON
         try {
+
+            //use library to get json
+            
+            Log.d("a", "before");
             String jsonString = new GetJson().AsString("http://de-coding-test.s3.amazonaws.com/books.json");
+            Log.d("a", "after");
+
+            //format as json array
+
+
 
             JSONArray jsonArray = new JSONArray(jsonString);
 
-            for (int i = 0; i < 3 ; i++){ //jsonArray.length(); i++) {
+            //get each title, author, and image one by one
+            for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonobject = jsonArray.getJSONObject(i);
 
+                //title
                 String title = jsonobject.getString("title");
                 titles.add(title);
 
-                String imgURL = jsonobject.getString("imageURL");
 
-                //Picasso.get().load("http://i.imgur.com/DvpvklR.png").into(imageView);
+                //Image, try/catch in case there is no image for that json element
+                try {
+                    String imgURL = jsonobject.getString("imageURL");
+                    images.add(imgURL);
+                }
+                catch (JSONException e){
+                images.add("");
+                }
 
+
+                //author, try/catch in case there is no author for that json element
                 try {
                     String author = jsonobject.getString("author");
-                    authors.add(author);
+                    authors.add("Author: " + author);
                 }
                 catch (JSONException e){
                     authors.add("");
@@ -66,18 +86,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //titles.add("test 1 book");
-        //titles.add("test 2 book");
-        //titles.add("test 3 book");
 
-        //authors.add("test 1 author");
-        //authors.add("test 2 author");
-        //authors.add("test 3 book");
-
-        images.add(R.drawable.test1);
-        images.add(R.drawable.test2);
-        images.add(R.drawable.test3);
-
+        //custom listview adapter instantiation
         CustomAdapter adapter=new CustomAdapter(this, titles, authors, images);
         ListView list=(ListView)findViewById(R.id.listview);
         list.setAdapter(adapter);
